@@ -24,15 +24,18 @@ public class SimpleArticleService implements ArticleService {
     public void generate(Store<Word> wordStore, int count, Store<Article> articleStore) {
         LOGGER.info("Генерация статей в количестве {}", count);
         var words = wordStore.findAll();
+        int connect = 0;
+        List<Article> articleList = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            List<Article> articleList = new ArrayList<>();
             LOGGER.info("Сгенерирована статья № {}", i);
             Article article = articleGenerator.generate(words);
             articleList.add(article);
-            if (articleList.size() > 50000) {
+            if (articleList.size() % 50000 == 0 || i == count - 1) {
                 articleList.forEach(articleStore::save);
                 articleList.clear();
+                connect++;
             }
         }
+        System.out.printf("%s database connections", connect);
     }
 }
